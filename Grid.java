@@ -87,8 +87,15 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
                 }
             }
         }
-
-        //If the user wants to type in their word
+        //If user wants to delete a letter
+        else if(keyCode == KEYCODE_BACKSPACE){
+            if(currentLetterSlot > 0){ //To prevent index out of bounds when backspace is repeatedly pressed
+                currentLetterSlot--;
+                grid[currentRow][currentLetterSlot].setText("");
+                canContinue = true; //User may continue to type because a slot has opened up
+            }
+        }
+        //If the user wants to enter their word
         else if(keyCode == KEYCODE_ENTER){
             if(currentRow < NUM_ROWS){//If the current attempt is either attempt 1 - 5 (6 total attempts)
                 if(currentLetterSlot == NUM_COLUMNS){
@@ -98,6 +105,8 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
                 }
             }
         }
+
+
 
     
     }
