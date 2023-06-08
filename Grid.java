@@ -14,13 +14,18 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
 
     int currentRow; //0 = 1st attempt, 1 = 2nd attempt.. etc..
     int currentLetterSlot; //0 = first letter in the word.. etc..
-    String typedWord;
+
+    String gameAnswer;
 
     boolean canContinue = true;
     boolean gameOver;
     String font = "Cambria";
     
     public Grid(){
+
+        //Getting answer for the current round
+        gameAnswer = new Words().getAnswer();
+        
 
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout()); //To add reset/next buttons, title and score on screen
@@ -30,7 +35,6 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
         //Building the grid
         gridPanel.setVisible(true);
         gridPanel.setLayout(new GridLayout(NUM_ROWS,NUM_COLUMNS));
-
         for(int i = 0; i < grid.length; i++){
             for(int j = 0; j < grid[0].length; j++){
                 grid[i][j] = new JButton();
@@ -99,12 +103,27 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
         else if(keyCode == KEYCODE_ENTER){
             if(currentRow < NUM_ROWS){//If the current attempt is either attempt 1 - 5 (6 total attempts)
                 if(currentLetterSlot == NUM_COLUMNS){//If the user has entered a 6 letter word
+                    String typedWord = "";
                     for(int i = 0; i < NUM_COLUMNS; i++){
                         typedWord += grid[currentRow][i].getText(); //Adding all the letters to show one word
                     }
+
+                    //Check if the 5-letter word the user has entered is an actual word
+                    boolean isValid = new Words().validWord(typedWord.toLowerCase());
+
+                    if(isValid){
+                        System.out.println("Is valid!");
+
+                    }
+                    else{
+                        System.out.println("Not valid!");
+
+                    }
+                    
                 }
             }
         }
+        
 
 
 
