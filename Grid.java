@@ -92,13 +92,13 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
             if(currentLetterSlot > 0){ //To prevent index out of bounds when backspace is repeatedly pressed
                 currentLetterSlot--;
                 grid[currentRow][currentLetterSlot].setText("");
-                canContinue = true; //User may continue to type because a slot has opened up
+                canContinue = true; //User may continue to type because a letter slot has opened up (from deleting)
             }
         }
         //If the user wants to enter their word
         else if(keyCode == KEYCODE_ENTER){
             if(currentRow < NUM_ROWS){//If the current attempt is either attempt 1 - 5 (6 total attempts)
-                if(currentLetterSlot == NUM_COLUMNS){
+                if(currentLetterSlot == NUM_COLUMNS){//If the user has entered a 6 letter word
                     for(int i = 0; i < NUM_COLUMNS; i++){
                         typedWord += grid[currentRow][i].getText(); //Adding all the letters to show one word
                     }

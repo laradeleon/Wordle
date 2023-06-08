@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -10,6 +11,8 @@ public class Words{
 
     public static void main(String[] args){
         loadWords();
+        String word = getWord();
+        System.out.println(word);
     }
 
 /**
@@ -29,14 +32,24 @@ public class Words{
             while((word = bufferedReader.readLine()) != null){
                 allWords.add(word);
             }
-
             bufferedReader.close();
-            
         }
 
         catch(IOException exception){
             System.out.println("An error has occurred when loading the words from the file: " + exception.getMessage());
         }
+    }
+
+/**
+ * Generates a random index, and retrieves the word at that index from an array list of words
+ * @return A randomly selected word from a list of common 5-letter words
+ */
+
+    public static String getWord(){
+        Random random = new Random();
+        int listIndex = random.nextInt(allWords.size());
+        String word = allWords.get(listIndex);
+        return word;
     }
  
 }
