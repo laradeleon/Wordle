@@ -10,13 +10,12 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
     final int HEIGHT = 600;
     final int FONT_SIZE = 45;
 
-
     JButton grid[][] = new JButton[NUM_ROWS][NUM_COLUMNS]; //2D Array of JButtons to create grid
     JPanel gridPanel = new JPanel();
 
     JLabel headerLabel;
 
-    int currentRow; //0 = 1st attempt, 1 = 2nd attempt.. etc..
+    int currentAttempt; //0 = 1st attempt, 1 = 2nd attempt.. etc..
     int currentLetterSlot; //0 = first letter in the word.. etc..
 
     String gameAnswer;
@@ -27,21 +26,31 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
     
     public Grid(){
 
+
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout()); //To add reset/next buttons, title and score on screen
         this.setVisible(true); //Shows window on screen
         this.setSize(WIDTH, HEIGHT);
-      
+
+        //Allows for colors of grid to change on Mac OS (Code works fine on Windows without this try/catch)
+        try{
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        }
+
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+        
         // ----------------------------  GRID ---------------------------- //
         gridPanel.setVisible(true);
         gridPanel.setLayout(new GridLayout(NUM_ROWS,NUM_COLUMNS));
-        //gridPanel.setBackground(Color.black);
+        gridPanel.setBackground(Color.black);
 
         for(int i = 0; i < grid.length; i++){
             for(int j = 0; j < grid[0].length; j++){
                 grid[i][j] = new JButton();
                 grid[i][j].setEnabled(false); //Prevents buttons from being pressed 
-                grid[i][j].setBackground(Color.white);
+                grid[i][j].setBackground(Color.BLACK);
                 grid[i][j].setFont(new Font(font, Font.BOLD,FONT_SIZE));
                 gridPanel.add(grid[i][j]);
             }
@@ -56,7 +65,8 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
         headerLabel = new JLabel();
         headerLabel.setHorizontalAlignment(JLabel.CENTER);
         headerLabel.setFont(new Font(font, Font.BOLD, FONT_SIZE));
-        headerLabel.setForeground(Color.BLACK);
+        headerLabel.setBackground(Color.BLACK);
+        headerLabel.setForeground(Color.WHITE); //Text 
         headerLabel.setOpaque(true);
         headerLabel.setText("Wordle");
 
@@ -76,6 +86,7 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
 
         //Getting answer for the current round
         gameAnswer = new Words().getAnswer();
+        System.out.println(gameAnswer);
 
     }
 
@@ -105,8 +116,7 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
             if(canContinue){
                 //And we havent filled all of the letter slots yet
                 if(currentLetterSlot < NUM_COLUMNS){
-                    grid[currentRow][currentLetterSlot].setText(String.valueOf((char)keyCode)); //Displaying the letter on the grid
-                
+                    grid[currentAttempt][currentLetterSlot].setText(String.valueOf((char)keyCode)); //Displaying the letter on the grid
                     currentLetterSlot++; //Going to the next letter slot
                 }
                 else{
@@ -118,44 +128,77 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
         else if(keyCode == KEYCODE_BACKSPACE){
             if(currentLetterSlot > 0){ //To prevent index out of bounds when backspace is repeatedly pressed
                 currentLetterSlot--;
-                grid[currentRow][currentLetterSlot].setText("");
+                grid[currentAttempt][currentLetterSlot].setText("");
                 canContinue = true; //User may continue to type because a letter slot has opened up (from deleting)
             }
         }
         //If the user wants to enter their word
         else if(keyCode == KEYCODE_ENTER){
-            if(currentRow < NUM_ROWS){//If the current attempt is either attempt 1 - 5 (6 total attempts)
+            if(currentAttempt < NUM_ROWS){//If the current attempt is either attempt 1 - 5 (6 total attempts)
                 if(currentLetterSlot == NUM_COLUMNS){//If the user has entered a 5 letter word
                     String typedWord = "";
                     for(int i = 0; i < NUM_COLUMNS; i++){
-                        typedWord += grid[currentRow][i].getText(); //Adding all the letters to show one word
+                        typedWord += grid[currentAttempt][i].getText(); //Adding all the letters to show one word
                     }
 
+                    typedWord = typedWord.toLowerCase();
+
                     //Check if the 5-letter word the user has entered is an actual word
-                    boolean isValid = new Words().validWord(typedWord.toLowerCase());
+                    boolean isValid = new Words().validWord(typedWord);
 
                     if(isValid){
                         System.out.println("Is valid!");
 
+                        // (If an invalid word was entered previously) Resets header label to "Wordle" if the word is valid 
+                        headerLabel.setForeground(Color.WHITE);
+                        headerLabel.setText("Wordle"); 
+
+
+                        //Now we need to check the word they put in and see how it matches up to the answer
+                        checkWord(typedWord);
+
+                        
+
                     }
-                    else{
+                    else{ //Displays error message if word is not valid
                         System.out.println("Not valid!");
-                        headerLabel.setForeground(Color.red);
+                        headerLabel.setForeground(Color.RED);
                         headerLabel.setText("Word does not exist.");
                     }
                     
                 }
-                else{//User did NOT enter a 5-letter word
-                    headerLabel.setForeground(Color.red);
+                else{//User did NOT enter a 5-letter word --> Displays error message
+                    headerLabel.setForeground(Color.RED);
                     headerLabel.setText("Not enough letters.");
                 }
             }
         }
         
+    }
+
+
+    public void checkWord(String word){
+
+        //CASE 1: EXACT MATCH (right letter AND right spot)
+        //First we need to check which letters are in the correct spot
+
+        //Need to have two arrays, one to store the user's input, and one to store the answers
+        char[] answer = gameAnswer.toCharArray();
+        char[] userEntry = word.toCharArray();
+
+        //Then we need to compare the arrays and check if there are letters that match up (same spot)
+        for(int i = 0; i < NUM_COLUMNS; i++){
+
+            if(userEntry[i] == answer[i]){
+                System.out.println("Found a match at index " + i + " for letter: " + userEntry[i]);
+                grid[currentAttempt][i].setBackground(Color.green);
+            }
+        }
 
 
 
-    
+
+
     }
 
     @Override
