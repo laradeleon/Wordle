@@ -227,6 +227,14 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
             }
         }
 
+        //Turns all other buttons that haven't been changed to gray
+        for(int i = 0; i < NUM_COLUMNS; i++){
+            if(!buttonChanged[i]){
+                grid[currentAttempt][i].setBackground(Color.LIGHT_GRAY);
+            }
+        }
+
+
        
     }
 
