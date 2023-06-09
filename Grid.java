@@ -8,9 +8,13 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
     final int NUM_COLUMNS = 5;
     final int WIDTH = 500;
     final int HEIGHT = 600;
+    final int FONT_SIZE = 45;
+
 
     JButton grid[][] = new JButton[NUM_ROWS][NUM_COLUMNS]; //2D Array of JButtons to create grid
     JPanel gridPanel = new JPanel();
+
+    JLabel headerLabel;
 
     int currentRow; //0 = 1st attempt, 1 = 2nd attempt.. etc..
     int currentLetterSlot; //0 = first letter in the word.. etc..
@@ -23,30 +27,45 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
     
     public Grid(){
 
-        //Getting answer for the current round
-        gameAnswer = new Words().getAnswer();
-        
-
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout()); //To add reset/next buttons, title and score on screen
         this.setVisible(true); //Shows window on screen
         this.setSize(WIDTH, HEIGHT);
-
-        //Building the grid
+      
+        // ----------------------------  GRID ---------------------------- //
         gridPanel.setVisible(true);
         gridPanel.setLayout(new GridLayout(NUM_ROWS,NUM_COLUMNS));
+        //gridPanel.setBackground(Color.black);
+
         for(int i = 0; i < grid.length; i++){
             for(int j = 0; j < grid[0].length; j++){
                 grid[i][j] = new JButton();
-                grid[i][j].setBackground(Color.WHITE);
                 grid[i][j].setEnabled(false); //Prevents buttons from being pressed 
-                grid[i][j].setFont(new Font(font, Font.BOLD, 20));
+                grid[i][j].setBackground(Color.white);
+                grid[i][j].setFont(new Font(font, Font.BOLD,FONT_SIZE));
                 gridPanel.add(grid[i][j]);
             }
         }
+      
         this.add(gridPanel);
+        
+        // ----------------------------  GRID ---------------------------- //
+
+        // ---------------------------- TITLE HEADER ---------------------------- //
+
+        headerLabel = new JLabel();
+        headerLabel.setHorizontalAlignment(JLabel.CENTER);
+        headerLabel.setFont(new Font(font, Font.BOLD, FONT_SIZE));
+        headerLabel.setForeground(Color.BLACK);
+        headerLabel.setOpaque(true);
+        headerLabel.setText("Wordle");
+
+        this.add(headerLabel, BorderLayout.NORTH);
+
+        // ---------------------------- TITLE HEADER ---------------------------- //
+
         this.addKeyListener(this); //To make it respond to key presses
-        //this.setFocusable(true);
+        this.setFocusable(true);
 
         //Refreshing frame after changing components
         this.repaint();
@@ -54,7 +73,10 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
 
         this.setTitle("Wordle");
         this.setLocationRelativeTo(null); //Puts frame in middle of screen
-        
+
+        //Getting answer for the current round
+        gameAnswer = new Words().getAnswer();
+
     }
 
     @Override
@@ -84,6 +106,7 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
                 //And we havent filled all of the letter slots yet
                 if(currentLetterSlot < NUM_COLUMNS){
                     grid[currentRow][currentLetterSlot].setText(String.valueOf((char)keyCode)); //Displaying the letter on the grid
+                
                     currentLetterSlot++; //Going to the next letter slot
                 }
                 else{
@@ -102,7 +125,7 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
         //If the user wants to enter their word
         else if(keyCode == KEYCODE_ENTER){
             if(currentRow < NUM_ROWS){//If the current attempt is either attempt 1 - 5 (6 total attempts)
-                if(currentLetterSlot == NUM_COLUMNS){//If the user has entered a 6 letter word
+                if(currentLetterSlot == NUM_COLUMNS){//If the user has entered a 5 letter word
                     String typedWord = "";
                     for(int i = 0; i < NUM_COLUMNS; i++){
                         typedWord += grid[currentRow][i].getText(); //Adding all the letters to show one word
@@ -117,9 +140,14 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
                     }
                     else{
                         System.out.println("Not valid!");
-
+                        headerLabel.setForeground(Color.red);
+                        headerLabel.setText("Word does not exist.");
                     }
                     
+                }
+                else{//User did NOT enter a 5-letter word
+                    headerLabel.setForeground(Color.red);
+                    headerLabel.setText("Not enough letters.");
                 }
             }
         }
