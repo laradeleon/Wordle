@@ -23,9 +23,11 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
     boolean canContinue = true;
     boolean gameOver;
     String font = "Cambria";
+
+    boolean buttonChanged[] = new boolean[NUM_COLUMNS];
+    boolean correctPosition[] = new boolean[NUM_COLUMNS];
     
     public Grid(){
-
 
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout()); //To add reset/next buttons, title and score on screen
@@ -41,7 +43,7 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
             e.printStackTrace();
         }
         
-        // ----------------------------  GRID ---------------------------- //
+        // ---------------------------- GRID ---------------------------- //
         gridPanel.setVisible(true);
         gridPanel.setLayout(new GridLayout(NUM_ROWS,NUM_COLUMNS));
         gridPanel.setBackground(Color.black);
@@ -92,7 +94,6 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
     }
 
@@ -157,7 +158,11 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
                         //Now we need to check the word they put in and see how it matches up to the answer
                         checkWord(typedWord);
 
-                        
+                        //Check the correctPosition[] array to see if user won (all elements are true)
+
+                        currentLetterSlot = 0; //Going to the next row now
+                        currentAttempt++;
+                        canContinue = true;
 
                     }
                     else{ //Displays error message if word is not valid
@@ -176,29 +181,53 @@ public class Grid extends JFrame implements ActionListener, KeyListener{
         
     }
 
-
     public void checkWord(String word){
+
+        //Corresponds with final answer array, tells us whether the letter in each index has been matched/paired with letter in userEntry
+        boolean[] isMatched = new boolean[NUM_COLUMNS]; 
+
+        //Need to reset arrays after each round so every square each round is turned to either red, green, or gray
+        for(int i = 0; i < NUM_COLUMNS; i++){
+            isMatched[i] = false;
+            buttonChanged[i] = false;
+            correctPosition[i] = false;
+        }
 
         //CASE 1: EXACT MATCH (right letter AND right spot)
         //First we need to check which letters are in the correct spot
-
         //Need to have two arrays, one to store the user's input, and one to store the answers
         char[] answer = gameAnswer.toCharArray();
         char[] userEntry = word.toCharArray();
 
-        //Then we need to compare the arrays and check if there are letters that match up (same spot)
+        //GREEN SQUARES: Correct letter, correct position
+        // Then we need to compare the arrays and check if there are letters that match up (same spot)
         for(int i = 0; i < NUM_COLUMNS; i++){
-
             if(userEntry[i] == answer[i]){
                 System.out.println("Found a match at index " + i + " for letter: " + userEntry[i]);
                 grid[currentAttempt][i].setBackground(Color.green);
+                buttonChanged[i] = true;
+                correctPosition[i] = true;
+                isMatched[i] = true;
             }
         }
 
+        //YELLOW SQUARES: Correct letter, wrong position
+        // Get the first letter in the user input, then compares with every letter in final answer
+        for(int i = 0; i < NUM_COLUMNS; i++){
+            for(int j = 0; j < NUM_COLUMNS; j++){
+                if(userEntry[i] == answer[j]){
+                   if(!isMatched[j]){ //Ensures that that letter in the final answer hasn't been matched to a letter in another position in the user's entry
+                       if(!buttonChanged[i]){ //To prevent us from turning a green square into yellow (incase of duplicate letters)
+                            grid[currentAttempt][i].setBackground(Color.YELLOW);
+                            buttonChanged[i] = true;
+                            isMatched[j] = true;
+                        }
+                    }
+                }
+            }
+        }
 
-
-
-
+       
     }
 
     @Override

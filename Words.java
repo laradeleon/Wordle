@@ -28,6 +28,7 @@ public class Words{
 
             //Adding all of the 5-letter words from the text file onto the array list
             while((word = bufferedReader.readLine()) != null){
+                word = word.toLowerCase();
                 allWords.add(word);
             }
             bufferedReader.close();
